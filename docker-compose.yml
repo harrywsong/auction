@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: auction_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auction_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: auction_server
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auction_db
+      ADMIN_KEY: admin123
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/src
+    command: npm run dev
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: auction_client
+    environment:
+      VITE_API_URL: http://localhost:3001
+      VITE_ADMIN_KEY: admin123
+    ports:
+      - '5173:5173'
+    depends_on:
+      - server
+    volumes:
+      - ./client/src:/app/src
+    command: npm run dev
+
+volumes:
+  pgdata:

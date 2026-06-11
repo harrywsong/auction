@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment secrets — never commit these
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+build.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Runtime logs
+*.log
+logs/
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Database local data
+*.sqlite
+*.db
+.pgdata/
+
+# Docker local overrides
+docker-compose.override.yml
+
+.github

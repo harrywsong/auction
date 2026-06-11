@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply box-border;
+}
+
+html,
+body {
+  @apply w-full h-full m-0 p-0;
+}
+
+#root {
+  @apply w-full h-full;
+}
+
+/* ── Pastel pink theme ─────────────────────────────────────────────────────── */
+
+/* Page backgrounds */
+.bg-gray-900  { background-color: #f2d0df !important; }
+.bg-gray-800  { background-color: #fce8f0 !important; }
+.bg-gray-700  { background-color: #f9d8e8 !important; }
+.bg-gray-600  { background-color: #f0bcd2 !important; }
+
+/* Gradient — override the actual gradient-image too */
+.from-gray-900 { --tw-gradient-from: #ebbdd0 !important; }
+.to-gray-800   { --tw-gradient-to:   #fce8f0 !important; }
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, #ebbdd0, #fce8f0) !important;
+}
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, #fce8f0, #f9d8e8) !important;
+}
+
+/* Borders */
+.border-gray-600 { border-color: #d890b0 !important; }
+.border-gray-700 { border-color: #e8b0c8 !important; }
+
+/* ── All text → dark for contrast on light backgrounds ── */
+.text-white    { color: #1a0810 !important; }
+.text-gray-200 { color: #2a1020 !important; }
+.text-gray-300 { color: #3a1828 !important; }
+.text-gray-400 { color: #5a2840 !important; }
+.text-gray-500 { color: #7a3850 !important; }
+
+/* Explicit body text in components */
+p, span, div, label, h1, h2, h3, h4, h5, h6, button, input, textarea, select, li {
+  color: #1a0810;
+}
+
+/* ── Buttons ── */
+.bg-blue-600              { background-color: #d44880 !important; }
+.bg-blue-700              { background-color: #b83870 !important; }
+.hover\:bg-blue-700:hover { background-color: #b83870 !important; }
+.bg-blue-900              { background-color: #f5c0d4 !important; }
+.border-blue-500          { border-color: #d44880 !important; }
+.border-blue-600          { border-color: #b83870 !important; }
+.text-blue-300            { color: #8a1040 !important; }
+.text-blue-400            { color: #8a1040 !important; }
+.focus\:border-blue-500:focus { border-color: #d44880 !important; }
+
+.bg-purple-600              { background-color: #c03878 !important; }
+.bg-purple-700              { background-color: #a82868 !important; }
+.hover\:bg-purple-700:hover { background-color: #a82868 !important; }
+
+.bg-red-600              { background-color: #dc3060 !important; }
+.bg-red-700              { background-color: #c02050 !important; }
+.hover\:bg-red-700:hover { background-color: #c02050 !important; }
+.bg-red-900              { background-color: #fcc8d4 !important; }
+.text-red-100            { color: #5a0820 !important; }
+.text-red-400            { color: #b02040 !important; }
+
+/* Button text should always be white/light */
+button { color: #1a0810; }
+.bg-blue-600, .bg-blue-700,
+.bg-purple-600, .bg-purple-700,
+.bg-red-600, .bg-red-700,
+.bg-green-600, .bg-green-700,
+.bg-yellow-500, .bg-yellow-600 {
+  color: #ffffff !important;
+}
+
+/* Disabled buttons */
+.disabled\:bg-gray-600:disabled,
+button:disabled {
+  background-color: #e8c0d0 !important;
+  color: #9a7888 !important;
+}
+
+/* ── Semantic colors — readable on light pink ── */
+.text-green-400 { color: #166534 !important; }
+.text-green-300 { color: #166534 !important; }
+.text-yellow-400 { color: #854d0e !important; }
+.text-yellow-300 { color: #854d0e !important; }
+.text-yellow-200 { color: #92400e !important; }
+.text-red-300   { color: #9f1239 !important; }
+
+/* ── Chat-specific — ensure messages are clearly readable ── */
+.text-gray-200.ml-1 { color: #1a0810 !important; }
+.text-gray-500.ml-1 { color: #7a3850 !important; }
+
+/* Captain role colors in chat */
+.text-red-400   { color: #9f1239 !important; }
+
+/* ── Inputs ── */
+input, textarea, select {
+  background-color: #fdf0f5 !important;
+  color: #1a0810 !important;
+  border-color: #d890b0 !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #a07080 !important;
+}
+
+/* Progress bars */
+.bg-blue-500 { background-color: #d44880 !important; }
+.bg-red-500  { background-color: #dc3060 !important; }
+.bg-gray-600.rounded-full,
+.bg-gray-700.rounded-full { background-color: #f0bcd2 !important; }
+
+/* ── Captain star slot ── */
+.bg-blue-700.border.border-blue-500 {
+  background-color: #f0c0d4 !important;
+  border-color: #d44880 !important;
+  color: #1a0810 !important;
+}
+
+/* ── System announce ── */
+.bg-yellow-900\/30    { background-color: rgba(255, 210, 190, 0.4) !important; }
+.border-yellow-700\/40 { border-color: rgba(200, 130, 100, 0.5) !important; }
+
+/* ── Timer circle inner background ── */
+.bg-gray-900.rounded-full { background-color: #f2d0df !important; }
+
+/* ── Scrollbars ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d44880 #f9d8e8;
+}
+*::-webkit-scrollbar       { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: #f9d8e8; }
+*::-webkit-scrollbar-thumb { background-color: #d44880; border-radius: 3px; }
