@@ -123,7 +123,8 @@ async function handleTimerExpired(io: Server, auctionId: string, fromReserve: bo
     // If in the reserve round, check whether every remaining reserve player has
     // already been passed at least once in this round (pass_count >= 2 means they
     // were in the original reserve AND have just been passed again). If so, the
-    // entire reserve has been cycled with no bids — end the auction.
+    // entire reserve has been cycled with no bids — but before ending, auto-assign
+    // any reserve players that qualify (last of their tier, exactly one team needs them).
     if (fromReserve) {
       const { query } = await import('../database.js');
       const unsoldReserve = await query(
@@ -138,6 +139,18 @@ async function handleTimerExpired(io: Server, auctionId: string, fromReserve: bo
         unsoldReserve.rows.every((r: any) => parseInt(r.pass_count, 10) > 1);
 
       if (allCycled) {
+        // Before ending, drain any reserve players that qualify for auto-assign
+        await autoAssignRemainingReserve(io, auctionId);
+
+        // Re-check if all teams are now full after auto-assigns
+        if (await auctionService.areAllTeamsFull(auctionId)) {
+          await auctionService.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
+          const state = await getFullState(auctionId);
+          systemAnnounce(io, auctionId, '🎉 All teams are full — auction complete!');
+          io.to(`auction:${auctionId}`).emit('auction:finished', { auctionId, ...state });
+          return;
+        }
+
         const state = await getFullState(auctionId);
         systemAnnounce(io, auctionId, '⚠️ All reserve players have been offered with no bids. Auction ending.');
         io.to(`auction:${auctionId}`).emit('queue:exhausted', {
@@ -164,6 +177,56 @@ async function handleTimerExpired(io: Server, auctionId: string, fromReserve: bo
   // Store the queue context for the next player before activating
   currentFromReserve.set(auctionId, fromReserve);
   await activateNext(io, auctionId, fromReserve);
+}
+
+/**
+ * After the reserve round exhausts with no bids, iterate over all remaining
+ * reserve players and auto-assign any that qualify (last of their tier, exactly
+ * one team needs them). Emits player:autoAssigned for each one assigned.
+ */
+async function autoAssignRemainingReserve(io: Server, auctionId: string) {
+  const { query } = await import('../database.js');
+
+  // Loop until no more auto-assigns are possible
+  let assigned = true;
+  while (assigned) {
+    assigned = false;
+
+    // Fetch all players still in reserve, ordered by pass_count then creation time
+    const reserveRes = await query(
+      `SELECT p.* FROM players p
+       JOIN passed_players pp ON p.id = pp.player_id
+       WHERE p.auction_id = $1 AND p.status = 'passed'
+       ORDER BY pp.pass_count ASC, pp.created_at ASC`,
+      [auctionId]
+    );
+
+    for (const playerRow of reserveRes.rows) {
+      const autoAssign = await auctionService.checkAutoAssign(auctionId, playerRow.tier, playerRow.id);
+      if (!autoAssign) continue;
+
+      // Temporarily set to 'current' so assignPlayerToCaptain can find and update it
+      await query(`UPDATE players SET status = 'current' WHERE id = $1`, [playerRow.id]);
+      await auctionService.assignPlayerToCaptain(auctionId, autoAssign.captainId, 0);
+
+      const state = await getFullState(auctionId);
+      const assignedCaptain = state.captains.find((c: any) => c.id === autoAssign.captainId);
+      const playerName = playerRow.name ?? 'Unknown';
+      const playerTier = playerRow.tier ?? '';
+
+      systemAnnounce(io, auctionId,
+        `🤖 [${playerTier}] ${playerName} auto-assigned to ${assignedCaptain?.name ?? 'Unknown'} (last of their tier).`
+      );
+      io.to(`auction:${auctionId}`).emit('player:autoAssigned', {
+        player: { ...normalizePlayer(playerRow), assignedCaptainId: autoAssign.captainId, status: 'sold' },
+        captainId: autoAssign.captainId,
+        ...state,
+      });
+
+      assigned = true;
+      break; // restart the loop so remaining counts are recalculated
+    }
+  }
 }
 
 /**
