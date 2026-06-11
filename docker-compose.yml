@@ -41,7 +41,8 @@ services:
       dockerfile: Dockerfile
     container_name: auction_client
     environment:
-      VITE_API_URL: http://localhost:4001
+      VITE_API_URL: http://40.233.95.61:4001
+      VITE_WS_URL: http://40.233.95.61:4001
       VITE_ADMIN_KEY: admin123
     ports:
       - '5173:5173'
