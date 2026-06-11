@@ -23,11 +23,11 @@ services:
     container_name: auction_server
     environment:
       NODE_ENV: production
-      PORT: 3001
+      PORT: 4001
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auction_db
       ADMIN_KEY: admin123
     ports:
-      - '3001:3001'
+      - '4001:4001'
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: auction_client
     environment:
-      VITE_API_URL: http://localhost:3001
+      VITE_API_URL: http://localhost:4001
       VITE_ADMIN_KEY: admin123
     ports:
       - '5173:5173'
