@@ -43,7 +43,7 @@ export function AdminDashboard() {
       auctionId: auctionId || '',
       name,
       riotId,
-      tier: tier as 'A' | 'B' | 'C' | 'D',
+      tier: tier as 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J',
       role: riotId, // riotId field is now used to store roles
       status: PlayerStatus.PENDING,
       assignedCaptainId: null,

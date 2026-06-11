@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 export function formatCurrency(amount: number): string {
   return `${amount.toLocaleString()}`;
 }
@@ -8,28 +10,38 @@ export function formatTime(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-import type { CSSProperties } from 'react';
+// Distinct, readable colors for tiers A–J
+const TIER_COLORS: Record<string, string> = {
+  A: '#ef4444', // red
+  B: '#3b82f6', // blue
+  C: '#eab308', // yellow
+  D: '#16a34a', // green
+  E: '#8b5cf6', // purple
+  F: '#f97316', // orange
+  G: '#06b6d4', // cyan
+  H: '#ec4899', // pink
+  I: '#84cc16', // lime
+  J: '#6b7280', // gray
+};
 
 export function getTierColor(tier: string): string {
-  const colors: Record<string, string> = {
+  const tailwind: Record<string, string> = {
     A: 'bg-red-500',
     B: 'bg-blue-500',
     C: 'bg-yellow-500',
     D: 'bg-green-600',
-    E: 'bg-gray-500',
+    E: 'bg-purple-500',
+    F: 'bg-orange-500',
+    G: 'bg-cyan-500',
+    H: 'bg-pink-500',
+    I: 'bg-lime-500',
+    J: 'bg-gray-500',
   };
-  return colors[tier] || 'bg-gray-400';
+  return tailwind[tier] || 'bg-gray-400';
 }
 
 export function getTierStyle(tier: string): CSSProperties {
-  const colors: Record<string, string> = {
-    A: '#ef4444',
-    B: '#3b82f6',
-    C: '#eab308',
-    D: '#16a34a',
-    E: '#6b7280',
-  };
-  return { backgroundColor: colors[tier] || '#9ca3af' };
+  return { backgroundColor: TIER_COLORS[tier] || '#9ca3af' };
 }
 
 export function formatDiscordResults(teams: any[]): string {

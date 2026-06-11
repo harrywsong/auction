@@ -7,7 +7,7 @@ interface TeamCompositionsProps {
   soldPlayers: Player[];
 }
 
-const TIERS = ['A', 'B', 'C', 'D'] as const;
+const TIERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'] as const;
 
 export function TeamCompositions({ captains, soldPlayers }: TeamCompositionsProps) {
   if (captains.length === 0) return null;

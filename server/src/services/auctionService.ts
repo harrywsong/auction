@@ -112,7 +112,7 @@ export async function getAuctionSummary(auctionId: string) {
 
 // ── Team fullness check ───────────────────────────────────────────────────────
 
-const TEAM_SLOTS = 4; // player slots per team (excluding captain)
+const TEAM_SLOTS = 9; // player slots per team (excluding captain)
 
 export async function areAllTeamsFull(auctionId: string): Promise<boolean> {
   const captains = await getAllCaptains(auctionId);

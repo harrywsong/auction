@@ -3,5 +3,5 @@ export const config = {
   wsUrl: import.meta.env.VITE_WS_URL || 'http://localhost:4001',
 };
 
-export const TIERS = ['A', 'B', 'C', 'D'];
+export const TIERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 export const BID_INCREMENTS = [5, 10, 25, 50, 100];

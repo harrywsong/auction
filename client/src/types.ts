@@ -39,7 +39,7 @@ export interface Player {
   auctionId: string;
   name: string;
   riotId: string;
-  tier: 'A' | 'B' | 'C' | 'D';
+  tier: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
   role: string;
   status: PlayerStatus;
   assignedCaptainId: string | null;
