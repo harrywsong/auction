@@ -114,20 +114,38 @@ async function handleTimerExpired(io: Server, auctionId: string, fromReserve: bo
       ...soldState,
     });
   } else {
-    // No bids — move to reserve
-    await auctionService.moveCurrentToReserve(auctionId);
-    const playerName = currentPlayerRaw?.name ?? 'Unknown';
-    systemAnnounce(io, auctionId,
-      `⏩ No bids for ${playerName} — moved to reserve.`
-    );
-    io.to(`auction:${auctionId}`).emit('player:noSale', {});
+    // No bids — check if this player should be auto-assigned before moving to reserve
+    const autoAssign = await auctionService.checkAutoAssign(auctionId, currentPlayerRaw?.tier, currentPlayerRaw?.id);
+    if (autoAssign) {
+      await auctionService.assignPlayerToCaptain(auctionId, autoAssign.captainId, 0);
+      const assignedState = await getFullState(auctionId);
+      const assignedCaptain = assignedState.captains.find((c: any) => c.id === autoAssign.captainId);
+      const playerName = currentPlayerRaw?.name ?? 'Unknown';
+      const playerTier = currentPlayerRaw?.tier ?? '';
 
-    // If in the reserve round, check whether every remaining reserve player has
-    // already been passed at least once in this round (pass_count >= 2 means they
-    // were in the original reserve AND have just been passed again). If so, the
-    // entire reserve has been cycled with no bids — but before ending, auto-assign
-    // any reserve players that qualify (last of their tier, exactly one team needs them).
-    if (fromReserve) {
+      systemAnnounce(io, auctionId,
+        `🤖 [${playerTier}] ${playerName} auto-assigned to ${assignedCaptain?.name ?? 'Unknown'} (last of their tier, no bids).`
+      );
+      io.to(`auction:${auctionId}`).emit('player:autoAssigned', {
+        player: { ...normalizePlayer(currentPlayerRaw), assignedCaptainId: autoAssign.captainId, status: 'sold' },
+        captainId: autoAssign.captainId,
+        ...assignedState,
+      });
+    } else {
+      // Genuinely no bids and no auto-assign — move to reserve
+      await auctionService.moveCurrentToReserve(auctionId);
+      const playerName = currentPlayerRaw?.name ?? 'Unknown';
+      systemAnnounce(io, auctionId,
+        `⏩ No bids for ${playerName} — moved to reserve.`
+      );
+      io.to(`auction:${auctionId}`).emit('player:noSale', {});
+
+      // If in the reserve round, check whether every remaining reserve player has
+      // already been passed at least once in this round (pass_count >= 2 means they
+      // were in the original reserve AND have just been passed again). If so, the
+      // entire reserve has been cycled with no bids — but before ending, auto-assign
+      // any reserve players that qualify (last of their tier, exactly one team needs them).
+      if (fromReserve) {
       const { query } = await import('../database.js');
       const unsoldReserve = await query(
         `SELECT pp.pass_count FROM passed_players pp
