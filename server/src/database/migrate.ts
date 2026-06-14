@@ -32,7 +32,7 @@ const migrations = [
       auction_id UUID NOT NULL REFERENCES auctions(id) ON DELETE CASCADE,
       name VARCHAR(255) NOT NULL,
       riot_id VARCHAR(255) NOT NULL,
-      tier CHAR(1) NOT NULL,
+      tier VARCHAR(10) NOT NULL,
       role VARCHAR(50) NOT NULL DEFAULT '',
       status VARCHAR(50) NOT NULL DEFAULT 'pending',
       assigned_captain_id UUID REFERENCES captains(id) ON DELETE SET NULL,
@@ -78,6 +78,11 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_bids_player_id ON bids(player_id);`,
   `CREATE INDEX IF NOT EXISTS idx_sessions_captain_id ON sessions(captain_id);`,
   `CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(session_token);`,
+  // Add peak_tier and current_tier columns if they don't already exist (idempotent)
+  `ALTER TABLE players ADD COLUMN IF NOT EXISTS peak_tier VARCHAR(50) NOT NULL DEFAULT '';`,
+  `ALTER TABLE players ADD COLUMN IF NOT EXISTS current_tier VARCHAR(50) NOT NULL DEFAULT '';`,
+  // Widen tier column from CHAR(1) to VARCHAR(10) to support tier "10"
+  `ALTER TABLE players ALTER COLUMN tier TYPE VARCHAR(10);`,
 ];
 
 export async function runMigrations() {

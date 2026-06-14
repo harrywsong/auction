@@ -33,12 +33,17 @@ services:
         condition: service_healthy
     volumes:
       - ./server/src:/app/src
+      - ./client/public/pfp:/app/pfp
     command: npm run dev
 
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://40.233.95.61:4001
+        VITE_WS_URL: http://40.233.95.61:4001
+        VITE_ADMIN_KEY: admin123
     container_name: auction_client
     environment:
       VITE_API_URL: http://40.233.95.61:4001
@@ -50,6 +55,7 @@ services:
       - server
     volumes:
       - ./client/src:/app/src
+      - ./client/public/pfp:/app/public/pfp
     command: npm run dev
 
 volumes:

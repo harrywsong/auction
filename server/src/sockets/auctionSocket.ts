@@ -25,6 +25,8 @@ export const normalizePlayer = (row: any) => ({
   riotId: row.riot_id,
   tier: row.tier,
   role: row.role,
+  peakTier: row.peak_tier ?? '',
+  currentTier: row.current_tier ?? '',
   status: row.status,
   assignedCaptainId: row.assigned_captain_id,
   pointsSpent: row.points_spent,

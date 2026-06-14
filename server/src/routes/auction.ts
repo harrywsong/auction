@@ -95,12 +95,18 @@ router.post('/:auctionId/setup', adminAuthMiddleware, async (req: AuthRequest, r
     // Add players
     if (Array.isArray(players)) {
       for (const player of players) {
+        const tier = String(player.tier ?? '').replace(/\r/g, '').trim();
+        if (!['1','3','4','5','6','7','8','9','10'].includes(tier)) {
+          return res.status(400).json({ error: `Invalid tier value "${player.tier}" for player "${player.name}". Must be one of: 1, 3, 4, 5, 6, 7, 8, 9, 10.` });
+        }
         await bidService.addPlayer(
           auctionId,
           player.name,
           player.riotId,
-          player.tier,
-          player.role
+          tier as any,
+          player.role,
+          player.peakTier || '',
+          player.currentTier || ''
         );
       }
     }
@@ -116,7 +122,8 @@ router.post('/:auctionId/setup', adminAuthMiddleware, async (req: AuthRequest, r
     const summary = await auctionService.getAuctionSummary(auctionId);
     res.json(summary);
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.error('[setup] 500 error:', error);
+    res.status(500).json({ error: error.message, detail: error.detail || error.code || '' });
   }
 });
 
@@ -145,6 +152,8 @@ router.get('/:auctionId/state', async (req: AuthRequest, res) => {
       riotId: row.riot_id,
       tier: row.tier,
       role: row.role,
+      peakTier: row.peak_tier ?? '',
+      currentTier: row.current_tier ?? '',
       status: row.status,
       assignedCaptainId: row.assigned_captain_id,
       pointsSpent: row.points_spent,

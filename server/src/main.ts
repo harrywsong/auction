@@ -10,6 +10,7 @@ import { runMigrations } from './database/migrate.js';
 import auctionRoutes from './routes/auction.js';
 import captainRoutes from './routes/captain.js';
 import healthRoutes from './routes/health.js';
+import pfpRoutes from './routes/pfp.js';
 
 import { setupBidSocket } from './sockets/bidSocket.js';
 import { setupAuctionSocket } from './sockets/auctionSocket.js';
@@ -34,6 +35,7 @@ app.use(authMiddleware);
 app.use('/api/health', healthRoutes);
 app.use('/api/auction', auctionRoutes);
 app.use('/api/captain', captainRoutes);
+app.use('/pfp', pfpRoutes);
 
 // Error handling
 app.use(notFoundHandler);

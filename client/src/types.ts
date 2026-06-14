@@ -38,9 +38,11 @@ export interface Player {
   id: string;
   auctionId: string;
   name: string;
-  riotId: string;
-  tier: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
-  role: string;
+  riotId: string;       // Discord name — also used to derive profile picture filename
+  tier: '1' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10';
+  role: string;         // 요원풀 (agent pool)
+  peakTier: string;     // 최고 티어
+  currentTier: string;  // 현 티어
   status: PlayerStatus;
   assignedCaptainId: string | null;
   pointsSpent: number;

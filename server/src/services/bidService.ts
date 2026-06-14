@@ -41,15 +41,17 @@ export async function addPlayer(
   auctionId: string,
   name: string,
   riotId: string,
-  tier: 'A' | 'B' | 'C' | 'D' | 'E',
-  role: string
+  tier: '1' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10',
+  role: string,
+  peakTier: string = '',
+  currentTier: string = ''
 ) {
   const id = uuidv4();
   const result = await query(
-    `INSERT INTO players (id, auction_id, name, riot_id, tier, role, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO players (id, auction_id, name, riot_id, tier, role, peak_tier, current_tier, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
-    [id, auctionId, name, riotId, tier, role, 'pending']
+    [id, auctionId, name, riotId, tier, role, peakTier, currentTier, 'pending']
   );
   return result.rows[0];
 }

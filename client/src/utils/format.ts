@@ -10,32 +10,30 @@ export function formatTime(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Distinct, readable colors for tiers A–J
+// Distinct, readable colors for tiers 1, 3–10
 const TIER_COLORS: Record<string, string> = {
-  A: '#ef4444', // red
-  B: '#3b82f6', // blue
-  C: '#eab308', // yellow
-  D: '#16a34a', // green
-  E: '#8b5cf6', // purple
-  F: '#f97316', // orange
-  G: '#06b6d4', // cyan
-  H: '#ec4899', // pink
-  I: '#84cc16', // lime
-  J: '#6b7280', // gray
+  '1':  '#ef4444', // red
+  '3':  '#eab308', // yellow
+  '4':  '#16a34a', // green
+  '5':  '#8b5cf6', // purple
+  '6':  '#f97316', // orange
+  '7':  '#06b6d4', // cyan
+  '8':  '#ec4899', // pink
+  '9':  '#84cc16', // lime
+  '10': '#3b82f6', // blue (formerly tier 2)
 };
 
 export function getTierColor(tier: string): string {
   const tailwind: Record<string, string> = {
-    A: 'bg-red-500',
-    B: 'bg-blue-500',
-    C: 'bg-yellow-500',
-    D: 'bg-green-600',
-    E: 'bg-purple-500',
-    F: 'bg-orange-500',
-    G: 'bg-cyan-500',
-    H: 'bg-pink-500',
-    I: 'bg-lime-500',
-    J: 'bg-gray-500',
+    '1':  'bg-red-500',
+    '3':  'bg-yellow-500',
+    '4':  'bg-green-600',
+    '5':  'bg-purple-500',
+    '6':  'bg-orange-500',
+    '7':  'bg-cyan-500',
+    '8':  'bg-pink-500',
+    '9':  'bg-lime-500',
+    '10': 'bg-blue-500',
   };
   return tailwind[tier] || 'bg-gray-400';
 }

@@ -37,14 +37,16 @@ export function AdminDashboard() {
     setCaptains([...captains, newCaptain]);
   };
 
-  const handleAddPlayer = async (name: string, riotId: string, tier: string) => {
+  const handleAddPlayer = async (name: string, riotId: string, tier: string, peakTier: string, currentTier: string, role: string) => {
     const newPlayer = {
       id: `local-${Date.now()}`,
       auctionId: auctionId || '',
       name,
-      riotId,
-      tier: tier as 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J',
-      role: riotId, // riotId field is now used to store roles
+      riotId,        // Discord name
+      tier: tier as '1' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10',
+      role,          // 요원풀
+      peakTier,      // 최고 티어
+      currentTier,   // 현 티어
       status: PlayerStatus.PENDING,
       assignedCaptainId: null,
       pointsSpent: 0,
@@ -56,19 +58,27 @@ export function AdminDashboard() {
   const handleBulkImport = async (csv: string) => {
     const lines = csv.trim().split('\n');
     const newPlayers = lines
-      .map((line) => line.trim())
+      .map((line) => line.trim().replace(/\r/g, ''))
       .filter((line) => line.length > 0)
       .map((line, i) => {
-        const parts = line.split(',').map((p) => p.trim());
-        const [name, roles, tier] = parts;
+        const parts = line.split(',').map((p) => p.trim().replace(/\r/g, ''));
+        // Format: 이름, 디코명, 최고티어, 현티어, 요원풀, 경매티어
+        const [name, riotId, peakTier, currentTier, role, tier] = parts;
         if (!name || !tier) return null;
+        const cleanTier = tier.replace(/\r/g, '').trim();
+        if (!['1','3','4','5','6','7','8','9','10'].includes(cleanTier)) {
+          console.warn(`Skipping player "${name}": invalid tier value "${cleanTier}"`);
+          return null;
+        }
         return {
           id: `local-${Date.now()}-${i}`,
           auctionId: auctionId || '',
           name,
-          riotId: roles || '',
-          tier: tier.toUpperCase() as 'A' | 'B' | 'C' | 'D',
-          role: roles || '',
+          riotId: riotId || '',
+          tier: cleanTier as '1' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10',
+          role: role || '',
+          peakTier: peakTier || '',
+          currentTier: currentTier || '',
           status: PlayerStatus.PENDING,
           assignedCaptainId: null,
           pointsSpent: 0,
