@@ -146,41 +146,42 @@ async function handleTimerExpired(io: Server, auctionId: string, fromReserve: bo
       // entire reserve has been cycled with no bids — but before ending, auto-assign
       // any reserve players that qualify (last of their tier, exactly one team needs them).
       if (fromReserve) {
-      const { query } = await import('../database.js');
-      const unsoldReserve = await query(
-        `SELECT pp.pass_count FROM passed_players pp
-         JOIN players p ON p.id = pp.player_id
-         WHERE p.auction_id = $1`,
-        [auctionId]
-      );
-      // If every player left in reserve has been passed more than once (pass_count > 1),
-      // the whole reserve has been offered and nobody bid — declare exhausted.
-      const allCycled = unsoldReserve.rows.length > 0 &&
-        unsoldReserve.rows.every((r: any) => parseInt(r.pass_count, 10) > 1);
+        const { query } = await import('../database.js');
+        const unsoldReserve = await query(
+          `SELECT pp.pass_count FROM passed_players pp
+           JOIN players p ON p.id = pp.player_id
+           WHERE p.auction_id = $1`,
+          [auctionId]
+        );
+        // If every player left in reserve has been passed more than once (pass_count > 1),
+        // the whole reserve has been offered and nobody bid — declare exhausted.
+        const allCycled = unsoldReserve.rows.length > 0 &&
+          unsoldReserve.rows.every((r: any) => parseInt(r.pass_count, 10) > 1);
 
-      if (allCycled) {
-        // Before ending, drain any reserve players that qualify for auto-assign
-        await autoAssignRemainingReserve(io, auctionId);
+        if (allCycled) {
+          // Before ending, drain any reserve players that qualify for auto-assign
+          await autoAssignRemainingReserve(io, auctionId);
 
-        // Re-check if all teams are now full after auto-assigns
-        if (await auctionService.areAllTeamsFull(auctionId)) {
-          await auctionService.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
+          // Re-check if all teams are now full after auto-assigns
+          if (await auctionService.areAllTeamsFull(auctionId)) {
+            await auctionService.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
+            const state = await getFullState(auctionId);
+            systemAnnounce(io, auctionId, '🎉 All teams are full — auction complete!');
+            io.to(`auction:${auctionId}`).emit('auction:finished', { auctionId, ...state });
+            return;
+          }
+
           const state = await getFullState(auctionId);
-          systemAnnounce(io, auctionId, '🎉 All teams are full — auction complete!');
+          systemAnnounce(io, auctionId, '⚠️ All reserve players have been offered with no bids. Auction ending.');
+          io.to(`auction:${auctionId}`).emit('queue:exhausted', {
+            auctionId,
+            exhaustedQueue: 'reserve',
+            ...state,
+          });
+          await auctionService.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
           io.to(`auction:${auctionId}`).emit('auction:finished', { auctionId, ...state });
           return;
         }
-
-        const state = await getFullState(auctionId);
-        systemAnnounce(io, auctionId, '⚠️ All reserve players have been offered with no bids. Auction ending.');
-        io.to(`auction:${auctionId}`).emit('queue:exhausted', {
-          auctionId,
-          exhaustedQueue: 'reserve',
-          ...state,
-        });
-        await auctionService.updateAuctionStatus(auctionId, AuctionStatus.FINISHED);
-        io.to(`auction:${auctionId}`).emit('auction:finished', { auctionId, ...state });
-        return;
       }
     }
   }
