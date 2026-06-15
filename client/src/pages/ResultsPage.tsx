@@ -46,7 +46,14 @@ export function ResultsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {teams.map((team) => (
+          {teams.map((team) => {
+            const sortedPlayers = [...team.players].sort(
+              (a: any, b: any) => parseInt(a.tier, 10) - parseInt(b.tier, 10)
+            );
+            const totalSpent = sortedPlayers.reduce(
+              (sum: number, p: any) => sum + (p.points_spent || p.pointsSpent || 0), 0
+            );
+            return (
             <div key={team.captain.id} className="p-6 bg-gray-800 rounded-lg">
               <div className="mb-4">
                 <h2 className="text-2xl font-bold text-white mb-1">
@@ -55,11 +62,14 @@ export function ResultsPage() {
                 <p className="text-gray-400">
                   Remaining Points:{' '}
                   {formatCurrency(team.captain.current_points)}
+                  <span className="ml-3 text-gray-500">
+                    (Spent: {formatCurrency(totalSpent)})
+                  </span>
                 </p>
               </div>
 
               <div className="space-y-2">
-                {team.players.map((player: any) => (
+                {sortedPlayers.map((player: any) => (
                   <div
                     key={player.id}
                     className="flex items-center gap-3 p-3 bg-gray-700 rounded"
@@ -77,11 +87,15 @@ export function ResultsPage() {
                         {player.role || player.riot_id}
                       </p>
                     </div>
+                    <span className="text-yellow-400 font-bold text-sm shrink-0">
+                      {formatCurrency(player.points_spent || player.pointsSpent || 0)} pts
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

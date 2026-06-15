@@ -92,7 +92,7 @@ export async function getAllPlayers(auctionId: string) {
 export async function getPlayersByTeam(auctionId: string, captainId: string) {
   const result = await query(
     `SELECT * FROM players WHERE auction_id = $1 AND assigned_captain_id = $2
-     ORDER BY tier ASC, created_at ASC`,
+     ORDER BY tier::integer ASC, created_at ASC`,
     [auctionId, captainId]
   );
   return result.rows;
